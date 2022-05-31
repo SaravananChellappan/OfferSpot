@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/login">
+
+    <fragment
+        android:id="@+id/login"
+        android:name="com.example.offerspot.Login"
+        android:label="Offer $pot"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/register"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@animator/nav_default_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/register"
+        android:name="com.example.offerspot.Register"
+        android:label="Register"
+        tools:layout="@layout/fragment_register" />
+</navigation>
