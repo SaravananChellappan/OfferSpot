@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,6 +75,58 @@ public class Register extends Fragment {
             {
 
                 dialog.ShowDialog();
+
+
+
+                boolean firebaseMode = true;
+
+                if(firebaseMode){
+
+                    final String name = ((EditText)getView().findViewById(R.id.editText_FirstName)).getText().toString() + " " +  ((EditText)getView().findViewById(R.id.editText_LastName)).getText().toString();
+                    String email = ((EditText)getView().findViewById(R.id.editText_Email)).getText().toString();
+                    String password = ((EditText)getView().findViewById(R.id.editText_Password)).getText().toString();
+
+                    ((MainActivity)getActivity()).mAuth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>(){
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                    dialog.HideDialog();
+
+                                    if (task.isSuccessful()) {
+                                        // Sign in success, update UI with the signed-in user's information
+                                        // Log.d(TAG, "createUserWithEmail:success");
+                                        FirebaseUser user = ((MainActivity)getActivity()).mAuth.getCurrentUser();
+
+                                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(name).build();
+
+                                        user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Toast.makeText(getContext(), "Register Success!!",
+                                                            Toast.LENGTH_SHORT).show();
+
+                                                    Navigation.findNavController(getView()).navigateUp();
+                                                }
+                                            }
+                                        });
+
+                                    } else {
+                                        // If sign in fails, display a message to the user.
+                                        Toast.makeText(getContext(), task.getException().getMessage(),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+
+                    return;
+                }
+
+
+
 
                 String url = "https://offerspotbackend.000webhostapp.com/register.php";
 

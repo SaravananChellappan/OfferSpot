@@ -1,6 +1,7 @@
 package com.example.offerspot;
 
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 
@@ -28,6 +29,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +56,8 @@ public class Login extends Fragment {
     LoadingDialog dialog;
 
 
+
+
     public Login() {
         // Required empty public constructor
     }
@@ -59,6 +68,8 @@ public class Login extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
+
+
         // Inflate the layout for this fragment
         return view;
     }
@@ -67,6 +78,19 @@ public class Login extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        FirebaseUser currentUser = ((MainActivity)getActivity()).mAuth.getCurrentUser();
+
+        if(currentUser!=null){
+
+            Intent myIntent = new Intent(getContext(), HomeActivity.class);
+            startActivity(myIntent);
+            getActivity().finish();
+//            NavController navController =Navigation.findNavController(getView());
+//            NavGraph navGraph = navController.getNavInflater().inflate(R.navigation.appflow);
+//            navController.setGraph(navGraph);
+//            setupActionBarWithNavController((AppCompatActivity) getActivity(),navController);
+        }
 
         emailText =  getView().findViewById(R.id.emailField);
         passwordText =  getView().findViewById(R.id.passwordField);
@@ -94,6 +118,30 @@ public class Login extends Fragment {
             {
                 dialog.ShowDialog();
 
+                boolean firebaseMode = true;
+
+                if(firebaseMode) {
+                    ((MainActivity)getActivity()).mAuth.signInWithEmailAndPassword( emailText.getText().toString(),  passwordText.getText().toString())
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>(){
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                    dialog.HideDialog();
+
+                                    if (task.isSuccessful()) {
+                                        Intent myIntent = new Intent(getContext(), HomeActivity.class);
+                                        startActivity(myIntent);
+                                        getActivity().finish();
+                                    } else {
+                                        Toast.makeText(getContext(), task.getException().getMessage(),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+
+                    return;
+                }
                 String url = "https://offerspotbackend.000webhostapp.com/login.php";
 
                 RequestQueue queue = Volley.newRequestQueue(getContext());
